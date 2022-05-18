@@ -28,7 +28,15 @@ contract Lottery {
         uint256 costToEnter = (usdEntryFee * 10 ** 18) / price;
         return costToEnter;
     }
-    function startLottery() public{}
-    function endLottery() public{}
+    function startLottery() public onlyOwner{
+        require(
+            lottery_state == LOTTERY_STATE.CLOSED,
+            "Can't start a new lottery yet!"
+        );
+        lottery_state = LOTTERY_STATE.OPEN;
+    }
+    function endLottery() public onlyOwner{
+        uint(keccack256(abi.encodePacked(nonce, msg.sender, block.difficulty, block.timestamp, block.timestamp))) % players.length;
+    }
 
 }
