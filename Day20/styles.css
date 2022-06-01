@@ -51,3 +51,9 @@ circle {
 .domain {
 color: #cfd4d8;
 }
+
+.tooltip-dot {
+    fill: none;
+    stroke: #6F1E51;
+    stroke-width: 2px;
+    }

@@ -169,6 +169,41 @@ async function drawScatter() {
       .html("Maximum Temperature (&deg;F)")
 
   // 7. Set up interactions
+  const voronoiGenerator = d3.voronoi()
+      .x(d => xScale(xAccessor(d)))
+      .y(d => yScale(yAccessor(d)))
+      .extent([
+        [0, 0],
+        [dimensions.boundedWidth, dimensions.boundedHeight]
+      ])
 
-}
+  const voronoiPolygons = voronoiGenerator.polygons(dataset)
+
+  const voronoi = dotsGroup.selectAll(".voronoi")
+    .data(voronoiPolygons)
+      .enter().append("polygon")
+      .attr("class", "voronoi")
+      .attr("points", (d=[]) => (
+        d.map(point => (
+          point.join(",")
+        )).join(" ")
+      ))
+      // .attr("stroke", "grey")
+
+  voronoi.on("mouseenter", onVoronoiMouseEnter)
+    .on("mouseleave", onVoronoiMouseLeave)
+
+  const tooltip = d3.select("#tooltip")
+  const hoverElementsGroup = bounds.append("g")
+      .attr("opacity", 0)
+
+  const horizontalLine = hoverElementsGroup.append("rect")
+      .attr("class", "hover-line")
+  const verticalLine = hoverElementsGroup.append("rect")
+      .attr("class", "hover-line")
+
+  const dayDot = hoverElementsGroup.append("circle")
+      .attr("class", "tooltip-dot")
+
+  }
 drawScatter()
