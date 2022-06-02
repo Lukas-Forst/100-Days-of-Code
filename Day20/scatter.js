@@ -170,40 +170,115 @@ async function drawScatter() {
 
   // 7. Set up interactions
   const voronoiGenerator = d3.voronoi()
-      .x(d => xScale(xAccessor(d)))
-      .y(d => yScale(yAccessor(d)))
-      .extent([
-        [0, 0],
-        [dimensions.boundedWidth, dimensions.boundedHeight]
-      ])
+  .x(d => xScale(xAccessor(d)))
+  .y(d => yScale(yAccessor(d)))
+  .extent([
+    [0, 0],
+    [dimensions.boundedWidth, dimensions.boundedHeight]
+  ])
 
-  const voronoiPolygons = voronoiGenerator.polygons(dataset)
+const voronoiPolygons = voronoiGenerator.polygons(dataset)
 
-  const voronoi = dotsGroup.selectAll(".voronoi")
-    .data(voronoiPolygons)
-      .enter().append("polygon")
-      .attr("class", "voronoi")
-      .attr("points", (d=[]) => (
-        d.map(point => (
-          point.join(",")
-        )).join(" ")
-      ))
-      // .attr("stroke", "grey")
+const voronoi = dotsGroup.selectAll(".voronoi")
+.data(voronoiPolygons)
+  .enter().append("polygon")
+  .attr("class", "voronoi")
+  .attr("points", (d=[]) => (
+    d.map(point => (
+      point.join(",")
+    )).join(" ")
+  ))
+  // .attr("stroke", "grey")
 
-  voronoi.on("mouseenter", onVoronoiMouseEnter)
-    .on("mouseleave", onVoronoiMouseLeave)
+voronoi.on("mouseenter", onVoronoiMouseEnter)
+.on("mouseleave", onVoronoiMouseLeave)
 
-  const tooltip = d3.select("#tooltip")
-  const hoverElementsGroup = bounds.append("g")
-      .attr("opacity", 0)
+const tooltip = d3.select("#tooltip")
+const hoverElementsGroup = bounds.append("g")
+  .attr("opacity", 0)
 
-  const horizontalLine = hoverElementsGroup.append("rect")
-      .attr("class", "hover-line")
-  const verticalLine = hoverElementsGroup.append("rect")
-      .attr("class", "hover-line")
+// we'll use <rect>s instead of <line>s to take advantage of CSS transitions
+const horizontalLine = hoverElementsGroup.append("rect")
+  .attr("class", "hover-line")
+const verticalLine = hoverElementsGroup.append("rect")
+  .attr("class", "hover-line")
 
-  const dayDot = hoverElementsGroup.append("circle")
-      .attr("class", "tooltip-dot")
+const dayDot = hoverElementsGroup.append("circle")
+  .attr("class", "tooltip-dot")
+
+
+ 
+  function onVoronoiMouseEnter(voronoiDatum) {
+        const datum = voronoiDatum.data
+    
+        hoverElementsGroup.style("opacity", 1)
+        const x = xScale(xAccessor(datum))
+        const y = yScale(yAccessor(datum))
+        dayDot.attr("cx", d => x)
+            .attr("cy", d => y)
+            .attr("r", 7)
+    
+        const hoverLineThickness = 10
+        horizontalLine.attr("x", x)
+          .attr("y", y - hoverLineThickness / 2)
+          .attr("width", dimensions.boundedWidth
+            + dimensions.histogramMargin
+            + dimensions.histogramHeight
+            - x)
+          .attr("height", hoverLineThickness)
+        verticalLine.attr("x", x - hoverLineThickness / 2)
+          .attr("y", -dimensions.histogramMargin
+            - dimensions.histogramHeight)
+          .attr("width", hoverLineThickness)
+          .attr("height", y
+            + dimensions.histogramMargin
+            + dimensions.histogramHeight)
+    
+        const formatTemperature = d3.format(".1f")
+        tooltip.select("#max-temperature")
+            .text(formatTemperature(yAccessor(datum)))
+    
+        tooltip.select("#min-temperature")
+            .text(formatTemperature(xAccessor(datum)))
+    
+        const dateParser = d3.timeParse("%Y-%m-%d")
+        const formatDate = d3.timeFormat("%A, %B %-d, %Y")
+        tooltip.select("#date")
+            .text(formatDate(dateParser(datum.date)))
+    
+        const tooltipX = xScale(xAccessor(datum))
+          + dimensions.margin.left
+        const tooltipY = yScale(yAccessor(datum))
+          + dimensions.margin.top
+          - 4 // bump up so it doesn't overlap with out hover circle
+    
+        tooltip.style("transform", `translate(`
+          + `calc( -50% + ${tooltipX}px),`
+          + `calc(-100% + ${tooltipY}px)`
+          + `)`)
+    
+        tooltip.style("opacity", 1)
+      }
+      function onVoronoiMouseLeave() {
+        hoverElementsGroup.style("opacity", 0)
+        tooltip.style("opacity", 0)
+      }
+    
+      legendGradient.on("mousemove", onLegendMouseMove)
+        .on("mouseleave", onLegendMouseLeave)
+    
+      const legendHighlightBarWidth = dimensions.legendWidth * 0.05
+      const legendHighlightGroup = legendGroup.append("g")
+          .attr("opacity", 0)
+      const legendHighlightBar = legendHighlightGroup.append("rect")
+          .attr("class", "legend-highlight-bar")
+          .attr("width", legendHighlightBarWidth)
+          .attr("height", dimensions.legendHeight)
+    
+      const legendHighlightText = legendHighlightGroup.append("text")
+          .attr("class", "legend-highlight-text")
+          .attr("x", legendHighlightBarWidth / 2)
+          .attr("y", -6)
 
   }
 drawScatter()
