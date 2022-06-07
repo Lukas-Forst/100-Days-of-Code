@@ -82,7 +82,14 @@ async function drawChart() {
     const cloudRadiusScale = d3.scaleSqrt()
     .domain(d3.extent(dataset, cloudAccessor))
     .range([1, 10])
-
+    
+    const precipitationRadiusScale = d3.scaleSqrt()
+      .domain(d3.extent(dataset, precipitationProbabilityAccessor))
+      .range([1, 8])
+    const precipitationTypes = ["rain", "sleet", "snow"]
+    const precipitationTypeColorScale = d3.scaleOrdinal()
+    .domain(precipitationTypes)
+    .range(["#54a0ff", "#636e72", "#b2bec3"])
   // 5. Draw data
 
   const containsFreezing = radiusScale.domain()[0] < 32
@@ -123,6 +130,21 @@ async function drawChart() {
             .attr("cx", d => getXFromDataPoint(d, cloudOffset))
             .attr("cy", d => getYFromDataPoint(d, cloudOffset))
             .attr("r", d => cloudRadiusScale(cloudAccessor(d)))
+
+    const precipitationGroup = bounds.append("g")
+    const precipitationOffset = 1.14
+    const precipitationDots = precipitationGroup.selectAll("circle")
+      .data(dataset.filter(precipitationTypeAccessor))
+      .enter().append("circle")
+      .attr("class", "precipitation-dot")
+      .attr("cx", d => getXFromDataPoint(d, precipitationOffset))
+      .attr("cy", d => getYFromDataPoint(d, precipitationOffset))
+      .attr("r", d => precipitationRadiusScale(
+      precipitationProbabilityAccessor(d)
+             ))
+      .style("fill", d => precipitationTypeColorScale(
+      precipitationTypeAccessor(d)
+             ))
   // 6. Draw peripherals
   const months = d3.timeMonths(...angleScale.domain())
   
