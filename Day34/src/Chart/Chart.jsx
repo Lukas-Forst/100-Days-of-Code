@@ -4,12 +4,18 @@ import { dimensionsPropsType } from "./utils"
 import "./Chart.css"
 
 export const useChartDimensions = () => {}
+const ChartContext = createContext()
 
 const Chart = ({ dimensions, children }) => (
-  <svg className="Chart">
+  <ChartContext.Provider value={dimensions}>
+  <svg
+    className="Chart"
+    width={dimensions.width}
+    height={dimensions.height}>
     { children }
-  </svg>
-)
+    </svg>
+  </ChartContext.Provider>
+  )
 
 Chart.propTypes = {
   dimensions: dimensionsPropsType,
