@@ -10,6 +10,14 @@ const Axis = ({ dimension, scale, ...props }) => {
   )
 }
 
+const dimensions = useChartDimensions()
+
+const axisGeneratorsByDimension = {
+  x: "axisBottom",
+  y: "axisLeft",
+  }
+const axisGenerator = d3[axisGeneratorsByDimension[dimension]]()
+  .scale(scale)
 Axis.propTypes = {
   dimension: PropTypes.oneOf(["x", "y"]),
   scale: PropTypes.func,

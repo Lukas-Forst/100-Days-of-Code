@@ -3,32 +3,25 @@ import { dimensionsPropsType } from "./utils"
 
 import "./Chart.css"
 
-export const useChartDimensions = () => {}
 const ChartContext = createContext()
+export const useChartDimensions = () => useContext(ChartContext)
 
 const Chart = ({ dimensions, children }) => (
   <ChartContext.Provider value={dimensions}>
-  <svg
-    className="Chart"
-    width={dimensions.width}
-    height={dimensions.height}>
-    <g transform={`translate(${
-    dimensions.marginLeft
-    }, ${
-    dimensions.marginTop
-    })`}>
-    { children }
-    </g>
+    <svg className="Chart" width={dimensions.width} height={dimensions.height}>
+      <g transform={`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`}>
+        { children }
+      </g>
     </svg>
   </ChartContext.Provider>
-  )
+)
 
 Chart.propTypes = {
-  dimensions: dimensionsPropsType,
+  dimensions: dimensionsPropsType
 }
 
 Chart.defaultProps = {
-  dimensions: {},
+  dimensions: {}
 }
 
 export default Chart

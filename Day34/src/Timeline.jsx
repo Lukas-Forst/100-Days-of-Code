@@ -15,10 +15,33 @@ const Timeline = ({ data, xAccessor, yAccessor, label }) => {
   <div className="Timeline" ref={ref}>
     <Chart dimensions={dimensions}>
     </Chart>
+    <Line
+      data={data}
+      xAccessor={xAccessorScaled}
+      yAccessor={yAccessorScaled}
+    />
+    <Axis
+dimension="x"
+scale={xScale}
+/>
+<Axis
+dimension="y"
+scale={yScale}
+/>
   </div>
   )
   }
 
+const xScale = d3.scaleTime()
+  .domain(d3.extent(data, xAccessor))
+  .range([0, dimensions.boundedWidth])
+const yScale = d3.scaleLinear()
+  .domain(d3.extent(data, yAccessor))
+  .range([dimensions.boundedHeight, 0])
+  .nice()
+
+  const xAccessorScaled = d => xScale(xAccessor(d))
+  const yAccessorScaled = d => yScale(yAccessor(d))
 Timeline.propTypes = {
   data: PropTypes.array,
   xAccessor: accessorPropsType,
