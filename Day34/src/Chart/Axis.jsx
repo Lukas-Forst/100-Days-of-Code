@@ -19,7 +19,14 @@ const Axis = ({ dimension, ...props }) => {
     />
   )
 }
-
+function AxisHorizontal (
+  { dimensions, label, formatTick, scale, ...props }
+  ) {
+  return (
+  <g className="Axis AxisHorizontal" {...props}>
+  </g>
+  )
+  }
 Axis.propTypes = {
   dimension: PropTypes.oneOf(["x", "y"]),
   dimensions: dimensionsPropsType,
