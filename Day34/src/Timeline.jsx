@@ -21,9 +21,10 @@ const Timeline = ({ data, xAccessor, yAccessor, label }) => {
       yAccessor={yAccessorScaled}
     />
     <Axis
-dimension="x"
-scale={xScale}
-/>
+      dimension="x"
+      scale={xScale}
+      formatTick={formatDate}
+      />
 <Axis
 dimension="y"
 scale={yScale}
