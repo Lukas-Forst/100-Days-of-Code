@@ -20,3 +20,6 @@ Day 19 (30.05.2022):
   - add enhancements but don't overdo it e.g. adding a trendline
 
 Day 40 - x: Creating different Python projects
+  - learning more about testing, formatting and other formats with Tiny python projects
+  - learning more about dashboarding with Dash.
+  - next step will be using d3.js and python...
