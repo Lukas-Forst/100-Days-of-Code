@@ -1,56 +1,68 @@
-import dash, dash_table
-import dash_core_components as dcc
-import dash_html_components as html
-import plotly.express as px
+
 import pandas as pd
 import os
-import json
 
+from dash import Dash, dcc, html, Input, Output, dash_table
+import plotly.express as px
 files = ["./archive/"+i for i in os.listdir('./archive')]
 
-"""
-with open("data.json", "r") as file:
-    data = json.load(file)
-
-list_ = []
-for i in range(len(data['data'])):
-    cryp_dict = {}
-    cryp_dict['symbol'] = data['data'][i]['symbol']
-    cryp_dict['max_supply'] = data['data'][i]['max_supply']
-    cryp_dict['circulating_supply'] = data['data'][i]['circulating_supply']
-    cryp_dict['total_supply'] = data['data'][i]['total_supply']
-    cryp_dict['market_cap'] = data['data'][i]['quote']['USD']['market_cap']
-    cryp_dict['price'] = data['data'][i]['quote']['USD']['price']
-    cryp_dict['volume_24h'] = data['data'][i]['quote']['USD']['volume_24h']
-    cryp_dict['percent_change_24h'] = data['data'][i]['quote']['USD']['percent_change_24h']
-    cryp_dict['percent_change_7d'] = data['data'][i]['quote']['USD']['percent_change_7d']
-    cryp_dict['percent_change_30d'] = data['data'][i]['quote']['USD']['percent_change_30d']
-    cryp_dict['percent_change_60d'] = data['data'][i]['quote']['USD']['percent_change_60d']
-    list_.append(cryp_dict)
-"""
 
 df = pd.concat(
     map(pd.read_csv, files), ignore_index=True)
 
-print(df.columns)
+#print(df.columns)
+df['year'] = pd.DatetimeIndex(df['Date']).year
+#df.columns = Index(['SNo', 'Name', 'Symbol', 'Date', 'High', 'Low', 'Open', 'Close',
+#       'Volume', 'Marketcap'],
+df_n = df.groupby(by="Symbol")
 
-app = dash.Dash()
-fig = px.bar(
-    df,
-    x="Symbol",
-    y="Marketcap",
-    hover_name="Symbol",
-    color="Symbol"
+
+print(len(df_n))
+app = Dash(__name__)
+app.layout = html.Div([
+        html.H1("Crypto Dashboard"),
+
+        dcc.Graph(id='graph-with-slider'),
+    dcc.Slider(
+        df['year'].min(),
+        df['year'].max(),
+        step=None,
+        value=df['year'].max(),
+        marks={str(year): str(year) for year in df['year'].unique()},
+        id='year-slider'),
+dash_table.DataTable(
+    data=df.to_dict('records'),
+    columns=[{'id': c, 'name': c} for c in df.columns],
+    style_cell_conditional=[
+        {
+            'if': {'column_id': c},
+            'textAlign': 'left'
+        } for c in ['Date', 'Region']
+    ],
+
+    style_as_list_view=True,
 )
 
-app.layout = html.Div(
-    [
-        html.H1("My Crypto Dashboard", style={"color": "#011833"}),
-        dcc.Graph(id="life-exp-vs-gdp", figure=fig),
-        dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
 
-    ]
-)
+
+])
+
+
+@app.callback(
+    Output('graph-with-slider', 'figure'),
+    Input('year-slider', 'value'))
+   # Input('xaxis-column', 'value') xaxis_column_name
+
+def update_figure(selected_year ):
+    filtered_df = df[df.year == selected_year]
+    #print(xaxis_column_name)
+   # print(filtered_df[filtered_df['Symbol'] == xaxis_column_name]["Symbol"].head())
+    fig = px.line(filtered_df, x="Date", y="Marketcap",
+                     color="Symbol", hover_name="Name")
+
+    fig.update_layout(transition_duration=500)
+
+    return fig
 
 
 
