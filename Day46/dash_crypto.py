@@ -18,7 +18,9 @@ df_n = df.groupby(by="Symbol")
 
 
 print(len(df_n))
-app = Dash(__name__)
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
         html.H1("Crypto Dashboard"),
 
@@ -32,13 +34,17 @@ app.layout = html.Div([
         id='year-slider'),
 dash_table.DataTable(
     data=df.to_dict('records'),
+    filter_action='native',
+    style_table={
+        'height': 400,
+    },
+    style_data={
+        'width': '150px', 'minWidth': '150px', 'maxWidth': '150px',
+        'overflow': 'hidden',
+        'textOverflow': 'ellipsis',
+    },
     columns=[{'id': c, 'name': c} for c in df.columns],
-    style_cell_conditional=[
-        {
-            'if': {'column_id': c},
-            'textAlign': 'left'
-        } for c in ['Date', 'Region']
-    ],
+    
 
     style_as_list_view=True,
 )
