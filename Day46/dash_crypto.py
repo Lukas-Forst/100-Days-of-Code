@@ -20,12 +20,7 @@ df_small = df[~df["Symbol"].isin(blue_chip)]
 df_test = df_small.groupby(by="Symbol")
 #print(df.columns)
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-theme = {
-    'dark': True,
-    'detail': '#007439',
-    'primary': '#00EA64',
-    'secondary': '#6E6E6E',
-}
+
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(className="row", children=[
@@ -56,6 +51,14 @@ dash_table.DataTable(
         'textOverflow': 'ellipsis',
         'background-color':'black'
     },
+        style_header={
+        'backgroundColor': 'rgb(30, 30, 30)',
+        'color': 'white'
+    },
+    style_filter={
+        'backgroundColor': 'rgb(30, 30, 30)',
+        'color': 'white'
+    },
     columns=[{'id': c, 'name': c} for c in df.columns],
 
 
@@ -80,7 +83,7 @@ def update_figure(selected_year ):
     filtered_df = df[df.year == selected_year]
 
     fig = px.line(filtered_df, x="Date", y="Marketcap",
-                     color="Symbol", hover_name="Name")
+                     color="Symbol",template="plotly_dark", hover_name="Name")
 
     fig.update_layout(transition_duration=500)
 
@@ -101,7 +104,8 @@ def update_figure_small(selected_year ):
                      y=filtered_df.values,
                      color=filtered_df.index,
                      labels={"x":"Symbol", "y":"Marketcap"},
-                     title=f"Mean marketcap in {selected_year}")
+                     title=f"Mean marketcap in {selected_year}",
+                     template="plotly_dark")
 
     fig_bar.update_layout(transition_duration=500)
 
@@ -115,8 +119,13 @@ def update_figure_small(selected_year ):
 def update_figure(selected_year ):
     filtered_df = df[df.year == selected_year]
 
-    fig = px.scatter(filtered_df, y="Volume", x="Marketcap",
-                     color="Symbol", hover_name="Name")
+    fig = px.scatter(filtered_df,
+                     y="Volume",
+                     x="Marketcap",
+                     color="Symbol",
+                     hover_name="Name",
+                     title=f"Volume and marketcap of coins in {selected_year}",
+                     template="plotly_dark")
 
     fig.update_layout(transition_duration=500)
 
