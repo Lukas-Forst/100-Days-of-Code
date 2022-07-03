@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import os
 import dash_daq as daq
@@ -14,12 +16,14 @@ df['year'] = pd.DatetimeIndex(df['Date']).year
 # df.columns = Index(['SNo', 'Name', 'Symbol', 'Date', 'High', 'Low', 'Open', 'Close',
 #       'Volume', 'Marketcap'],
 df_n = df.groupby(by="Symbol")
+df["Key"]=df['Date']+df['Symbol']
+#print(df['Key'])
 blue_chip = ["BTC", "ETH", "BNB"]
 df_small = df[~df["Symbol"].isin(blue_chip)]
 df_test = df_small.groupby(by="Symbol")
 # print(df.columns)
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-#print(df['Symbol'].unique())
+#print(df['Name'].unique())
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(className="row", children=[
@@ -119,14 +123,15 @@ def update_figure_small(selected_year):
 
 def update_figure(selected_year):
     filtered_df = df[df.year == selected_year]
-
+    #print(filtered_df)
     fig = px.scatter(filtered_df,
                      y="Volume",
                      x="Marketcap",
                      color="Symbol",
                      hover_name="Name",
                      title=f"Volume and marketcap of coins in {selected_year}",
-                     template="plotly_dark")
+                     template="plotly_dark",
+                     hover_data={'Key'})
 
     fig.update_layout(transition_duration=500)
 
@@ -146,28 +151,55 @@ def display_tip(hoverData, selected_year):
     coins =  ['AAVE', 'BNB', 'BTC', 'ADA', 'LINK', 'ATOM', 'CRO', 'DOGE', 'EOS', 'ETH', 'MIOTA',
      'LTC', 'XMR', 'XEM', 'DOT', 'SOL', 'XLM', 'USDT', 'TRX', 'UNI', 'USDC', 'WBTC',
      'XRP']
-    print(selected_year)
     df_n = df[df.year == selected_year]
     df_n = df_n.reset_index(drop=True)
     pt = hoverData["points"][0]
     bbox = pt["bbox"]
     num = pt["pointNumber"]
-    df_row = df_n.iloc[num]
-    #print(num, hoverData, df_row)
-    print(df_n.index)#, hoverData)
-    name = df_row['Name']
-    Date = df_row['Date']
-    Mcap = df_row['Marketcap']
-    vol = df_row['Volume']
-    #print(hoverData)
+    #print(pt, hoverData)
+    cust = pt['customdata'][0]
+
+    #print(hoverData, cust)
+    #print(df_n[(df_n['Key']==cust)])
+    src_dict = {
+        'AAVE':7278,
+        'BNB':1839,
+        'BTC':1,
+        'ADA':2010,
+        'LINK':1975,
+        'ATOM':3794,
+        'CRO':3635,
+        'DOGE':74,
+        'EOS':1765,
+        'ETH':1027,
+        'MIOTA':1720,
+         'LTC':2, 'XMR':328,
+        'XEM':873, 'DOT':6636, 'SOL':5426,
+        'XLM':512, 'USDT':825, 'TRX':1985, 'UNI':7083, 'USDC':3408, 'WBTC':3717,
+         'XRP':52
+    }
+
+
+    df_row = df_n[(df_n['Key']==cust)]
+    name = df_row['Name'].values[0]
+    Date = df_row['Date'].values[0]
+    Mcap = df_row['Marketcap'].values[0]
+    vol = df_row['Volume'].values[0]
+    src = df_row['Symbol'].values[0]
+    #print(src)
+    day =datetime.strptime(Date, '%Y-%m-%d %H:%M:%S').strftime("%d")
+    month = datetime.strptime(Date, '%Y-%m-%d %H:%M:%S').strftime("%B")
+    url = [f"https://s2.coinmarketcap.com/static/img/coins/64x64/{src_dict[i]}.png" for i in src_dict.keys() if src.lower() == i.lower()]
     children = [
         html.Div([
             #html.Img(src=img_src, style={"width": "100%"}),
-            html.H2(f"{name}", style={"color": "darkblue"}),
-            html.P(f"{Date}"),
+            html.Div([html.Img(src=f"{url[0]}", style={"float":"left"}),  html.P(f"{name}", style={"color": "darkblue","margin":"0px"})],
+                     style={"display":"inline"}),
+
+            html.P(f"{day}, {month}"),
             html.P(f"{Mcap}"),
             html.P(f"{vol}"),
-        ], style={'width': '200px', 'white-space': 'normal'})
+        ], style={'width': '200px', 'white-space': 'normal', 'color':'black'})
     ]
 
     return True, bbox, children
