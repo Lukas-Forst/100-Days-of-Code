@@ -15,12 +15,13 @@ if os.path.exists('token.json'):
 
 try:
     service = build('gmail', 'v1', credentials=creds)
-    results = service.users().messages().list(userId='me').execute()#.labels().list(userId='me').execute()
-
+    results = service.users().messages().list(userId='me', q="newer_than:7d", maxResults=500).execute()#.labels().list(userId='me').execute()
+    #print(results)
     messages = results.get('messages', [])
     #print(results)
     all_data = [service.users().messages().get(userId='me', id=msg['id'], format="full").execute() for msg in messages]
-    with open('data_full.json', 'w') as f:
+    print(len(all_data))
+    with open('data_full_7d_unread.json', 'w') as f:
         json.dump(all_data, f)
     #json.dumps(all_data)
         #print(key)

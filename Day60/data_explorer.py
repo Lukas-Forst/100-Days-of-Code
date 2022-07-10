@@ -8,10 +8,11 @@ import base64
 import email
 import pandas as pd
 import lxml
+import re
 from bs4 import BeautifulSoup
 from transformers import pipeline
 
-f = open('data_full.json')
+f = open('data_full_7d_unread.json')
 data = json.load(f)
 ###
 
@@ -21,6 +22,7 @@ sender_stat = []
 date_stat = []
 label_stat = []
 list_dict = []
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 for msg in messages:
     # Get the message from its id
 
@@ -38,7 +40,7 @@ for msg in messages:
         # Look for Subject and Sender Email in the headers
         for d in headers:
             if d['name'] == 'Subject':
-                #subject = d['value']
+                subject = d['value']
                 data_dict['subject'] = d['value']
             if d['name'] == 'From':
                 #sender = d['value']
@@ -51,7 +53,7 @@ for msg in messages:
 
             # data_dict['id'] = i
             # print(i)
-        summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+
 
         # The Body of the message is in Encrypted format. So, we have to decode it.
         # Get the data and decode it with base 64 decoder.
@@ -64,13 +66,30 @@ for msg in messages:
         # it with BeautifulSoup library
         soup = BeautifulSoup(decoded_data, "lxml")
         body = soup.body(text=True)[0]
-        list_dict.append(data_dict)
-        print(body)
+
+        #print(str(body))
         # Printing the subject, sender's email and message
-        print(type(body))
+        #print(type(str(body)))
         #print(test)
         #print(body.get_text())
-        #summary = summarizer(str(body), max_length=130, min_length=30)
+        #print(body.strip('\n'))
+        body = str(body)
+        #body = body.replace("\n"," ")
+        text = body.replace("\r\n", "")
+        text = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+' , '', text,
+                      flags=re.MULTILINE)
+        tokens = text.split(" ")
+        trun_token = ' '.join(tokens[:400])
+        #stocks = body.replace("\r\n", "")
+        #print(len(text), text)
+        try:
+            summary = summarizer(str(trun_token), max_length=100, min_length=30)
+            data_dict['summary'] = summary[0]["summary_text"]
+            list_dict.append(data_dict)
+        except Exception as e:
+            data_dict['summary'] = subject
+            list_dict.append(data_dict)
+            pass
         #print(summary)
         #print("Subject: ", subject)
         #print("From: ", sender)
@@ -87,6 +106,7 @@ for msg in messages:
 
 #print(list_dict)
 
-#df = pd.DataFrame(list_dict)
-#df.to_csv('sender.csv')
+df = pd.DataFrame(list_dict)
+df.to_csv('sender_new.csv')
+print("Done")
 #print(df.head())
