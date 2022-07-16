@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-Author : runner <runner@d7ad95e3af09>
-Date   : 2022-07-15
-Purpose: Rock the Casbah
+Purpose: Emulate wc (word count)
 """
 
 import argparse
@@ -13,7 +11,7 @@ def get_args():
     """Get command-line arguments"""
 
     parser = argparse.ArgumentParser(
-        description='Rock the Casbah',
+        description='Emulate wc (word count)',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('file',
@@ -29,24 +27,36 @@ def get_args():
 
 # --------------------------------------------------
 def main():
-    """Make a jazz noise here"""
+
     ov_line = 0
     ov_word = 0
     ov_char = 0
     args = get_args()
     for fh in args.file: # ONE LOOP
-      print(fh.name)
+      word_count=0
+      sent_num = 0
+      for line in fh:
+        if line != "\n":
+          word_count += len(line.split(' '))
+          #print(line.split(' '))
+          sent_num += 1
+        else:
+          sent_num +=1
       data = open(fh.name).read()
-      data_ = [line for line in data.split('\n') if line.strip() != '']
-      line_count = 0
-      if len(data_)
-      for line in data_:
-        # TWO LOOPS!
-        
-        print(line)
-        
-        print(len(data_),len(line.split(' ')), len(data))
-       # print(line)
+      sent = data.split('\n')
+      ov_word += word_count
+      if len(data) == 0:
+        sent_num=0
+        print(f"{sent_num:8}{word_count:8}{len(data):8} {fh.name}")
+        return
+      print(f"{sent_num:8}{word_count:8}{len(data):8} {fh.name}")
+      ov_line += sent_num
+      ov_char += len(data)
+    if len(args.file) > 1:
+        print(f"{ov_line:8}{ov_word:8}{ov_char:8} total")
+
+
+      
 
 # --------------------------------------------------
 if __name__ == '__main__':
