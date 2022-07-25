@@ -28,7 +28,7 @@ if os.path.exists('token.json'):
 
 try:
     service = build('gmail', 'v1', credentials=creds)
-    results = service.users().messages().list(userId='me', q="newer_than:8d", maxResults=10).execute()#.labels().list(userId='me').execute()
+    results = service.users().messages().list(userId='me', q="newer_than:8d", maxResults=500).execute()#.labels().list(userId='me').execute()
     #print(results)
     messages = results.get('messages', [])
     #print(results)
@@ -158,16 +158,32 @@ datalist = []
 df_new_d = df_n.groupby(by=['day','labelIds']).count()
 df_new_d = df_n.reset_index()
 print(df_n.day.unique())
+print(df_new_d.dtypes)
 for day in df_n.day.unique():
     if int(day) > 0:
-        value1 = df_new_d[(df_new_d['labelIds']==labels[0]) & (df_new_d['day']==day)]['sender'].values[0]
-        value2 = df_new_d[(df_new_d['labelIds']==labels[1]) & (df_new_d['day']==day)]['sender'].values[0]
-        value3 = df_new_d[(df_new_d['labelIds']==labels[2]) & (df_new_d['day']==day)]['sender'].values[0]
+        #day = int(day)
+        try:
+            value1 = df_new_d[(df_new_d['labelIds']==labels[0]) & (df_new_d['day']==day)]['sender'].count()
+        except Exception as e:
+            #print()
+            value1 = 0
+            pass
+        try:
+            value2 = df_new_d[(df_new_d['labelIds']==labels[1]) & (df_new_d['day']==day)]['sender'].count()
+        except Exception as e:
+            value2 = 0
+            pass
+        try:
+            value3 = df_new_d[(df_new_d['labelIds']==labels[2]) & (df_new_d['day']==day)]['sender'].count()
+        except Exception as e:
+            value3 = 0
+            pass
         datalist.append([day,value1,value2,value3])
-
+print(datalist)
 df_viz = pd.DataFrame(datalist, columns=['day','CATEGORY_PROMOTIONS','CATEGORY_SOCIAL','CATEGORY_UPDATES'])
+print(df_viz)
 plt = df_viz.plot(x='day', kind='bar', stacked=True,
-        title='Stacked Bar Graph by dataframe')
-plt.savefig('foo.png')
+        title='weekly mail by category')
+plt.figure.savefig('foo.png')
 
 df_n.to_csv("first_test.csv", encoding="utf-8")
