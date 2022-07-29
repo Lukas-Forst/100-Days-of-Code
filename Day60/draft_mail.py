@@ -11,7 +11,7 @@ img = 'foo.png'
 
 
 ctx = ssl.create_default_context()
-password = "knavxlfjoxzeamuy"    # Your app password goes here
+password = ""    # Your app password goes here
 sender = "kanuspeter@gmail.com"    # Your e-mail address
 receiver = "kanuspeter@gmail.com" # Recipient's address
 message = MIMEMultipart("alternative")
