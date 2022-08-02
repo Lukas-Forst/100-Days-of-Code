@@ -1,0 +1,61 @@
+Generate required text for the repo file with configuration tool:
+https://mariadb.org/download/?t=repo-config&d=CentOS+8+%28ARM64%29&v=10.8&r_m=hs-esslingen
+
+# MariaDB 10.8 CentOS repository list - created 2022-08-02 16:31 UTC
+# https://mariadb.org/download/
+[mariadb]
+name = MariaDB
+baseurl = https://mirror1.hs-esslingen.de/pub/Mirrors/mariadb/yum/10.8/centos8-aarch64
+module_hotfixes=1
+gpgkey=https://mirror1.hs-esslingen.de/pub/Mirrors/mariadb/yum/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+
+gpgkey line tells YUM where the GPG signing key is
+Name file accordingly MariaDB.repo
+move the file to /etc/yum.repos.d
+sudo mv -vi MariaDB.repo /etc/yum.repos.d/
+Install:
+sudo yum install MariaDB-server MariaDB-client
+start MariaDB with:
+sudo /etc/init.d/mysql start
+
+Output should look like:
+[dbart@centos70-x86-64 ~]$ sudo /etc/init.d/mysql start
+Starting MySQL.. SUCCESS!
+Open a Terminal and write:
+mysql -u root -p
+
+/usr/share/mysql/ contains helper scripts
+and /var/lib/mysql/
+As with /usr/share/mysql/, we don't need to worry about the contents of the
+MariaDB plugin directory. It's enough to know that it exists and contains important
+files. Also, if in the future we install a new MariaDB plugin, this directory is where it
+will go.
+
+The /etc/mysql/ directory is where the configuration information for MariaDB is
+stored; specifically, it is stored in the following two locations:
+/etc/mysql/my.cnf
+/etc/mysql/conf.d/
+
+MariaDB looks into different locations for config file:
+my.cnf
+# Here is a comment
+; This is also a comment
+port = 3306 # This is a comment about the 'port' option
+
+[mysqld]
+# Configuration options for the mysqld program go here
+[server]
+# the same as [mysqld]
+[mysql]
+# configuration options for the mysql command-line client
+[client]
+# the same as [mysql]
+[client-server]
+# configuration options for both clients and the server
+[mysqladmin]
+# configuration options for the mysqladmin program
+[mysqlcheck]
+# configuration options for the mysqlcheck utility
+[mariadb-10.1]
+# configuration options just for MariaDB 10.1 series servers
