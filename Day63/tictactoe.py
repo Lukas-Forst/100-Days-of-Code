@@ -53,20 +53,21 @@ def get_args():
     return args
   
 def format_board(string):
-    board = """-------------\n"""
-    for i in range(1,len(string)+1):
-      if string[i-1] != ".":
-        n = string[i-1]
+    #string_n = [i+1 for i in range(len(string))]
+    strin = ""
+    for i in range(len(string)):
+      if string[i] == ".":
+        strin += str(i+1)
       else:
-        n = i
-      if i%3==0:
-        #print(i)
-        
-        board += f"| {n} |\n-------------\n"
-      else:
-        board += f"| {n} "
-    #print(board)
-    return board
+        strin += string[i]
+    #print(strin)
+    header = "-------------"
+    col1 = f"| {strin[0]} | {strin[1]} | {strin[2]} |"
+    col2 = f"| {strin[3]} | {strin[4]} | {strin[5]} |"
+    col3 = f"| {strin[6]} | {strin[7]} | {strin[8]} |"
+    board_t ='\n'.join([header, col1, header, col2, header,col3,header])
+    
+    return board_t
 def test_board_no_board():
     """makes default board"""
     board = """
@@ -83,17 +84,24 @@ def test_board_no_board():
 def test_board_with_board():
     """makes board"""
     board = """
-    -------------
-    | 1 | 2 | 3 |
-    -------------
-    | O | X | X |
-    -------------
-    | 7 | 8 | 9 |
-    -------------
+-------------
+| 1 | 2 | 3 |
+-------------
+| O | X | X |
+-------------
+| 7 | 8 | 9 |
+-------------
     """.strip()
     assert format_board('...OXX...') == board
-def find_winner():
-  pass
+def find_winner(board):
+  wins = [('PPP......'), ('...PPP...'), ('......PPP'), ('P..P..P..'),
+            ('.P..P..P.'), ('..P..P..P'), ('P...P...P'), ('..P.P.P..')]
+  #transform board_string
+  if "X" not in board and "O" not in board:
+    return "No winner."
+  if (board.count("X") < 3) and (board.count("O") <3):
+    return "No winner."
+  x_string = "x"
 
 def test_winning():
     """test winning boards"""
@@ -127,18 +135,13 @@ def main():
     board = args.board
     player = args.player
     cell = args.cell
-    test = format_board('.'*9)
-    
-    board = """  -------------
-    | 1 | 2 | 3 |
-    -------------
-    | O | X | X |
-    -------------
-    | 7 | 8 | 9 |
-    -------------
-    """.strip()
-    print(test.strip() == board)
-    print(len(board), len(test), board, test)
+    if cell:
+      
+      board = board[:cell-1] + player + board[cell:]
+      #print(board)
+    print(format_board(board))
+    print(find_winner(board))
+
 
 # --------------------------------------------------
 if __name__ == '__main__':
